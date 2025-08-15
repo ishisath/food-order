@@ -1,0 +1,510 @@
+// Global variables
+let currentUser = null;
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let reviews = JSON.parse(localStorage.getItem('reviews')) || [
+    {
+        name: "Sarah Johnson",
+        rating: 5,
+        text: "Absolutely amazing food! The butter chicken was perfectly spiced and the naan was fresh and warm. Will definitely be coming back!",
+        date: "2025-01-10"
+    },
+    {
+        name: "Mike Chen",
+        rating: 5,
+        text: "Best Sri Lankan food in the city! The kottu roti was authentic and delicious. Great atmosphere and friendly staff.",
+        date: "2025-01-08"
+    },
+    {
+        name: "Emily Davis",
+        rating: 4,
+        text: "Lovely desserts and great service. The kulfi was the perfect end to our meal. Highly recommend for special occasions.",
+        date: "2025-01-05"
+    }
+];
+
+// Menu data
+const menuData = {
+    indian: [
+        {
+            id: 1,
+            name: "Butter Chicken",
+            description: "Creamy tomato-based curry with tender chicken pieces",
+            price: 16.99,
+            image: "https://images.pexels.com/photos/2474661/pexels-photo-2474661.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "indian",
+            spiceLevel: "mild",
+            featured: true
+        },
+        {
+            id: 2,
+            name: "Chicken Biryani",
+            description: "Aromatic basmati rice with spiced chicken and saffron",
+            price: 18.99,
+            image: "https://images.pexels.com/photos/11220209/pexels-photo-11220209.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "indian",
+            spiceLevel: "medium",
+            featured: true
+        },
+        {
+            id: 3,
+            name: "Palak Paneer",
+            description: "Fresh spinach curry with cottage cheese cubes",
+            price: 14.99,
+            image: "https://images.pexels.com/photos/5560763/pexels-photo-5560763.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "indian",
+            spiceLevel: "mild"
+        },
+        {
+            id: 4,
+            name: "Tandoori Chicken",
+            description: "Marinated chicken grilled in traditional tandoor oven",
+            price: 19.99,
+            image: "https://images.pexels.com/photos/6419733/pexels-photo-6419733.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "indian",
+            spiceLevel: "hot"
+        },
+        {
+            id: 5,
+            name: "Dal Makhani",
+            description: "Rich and creamy black lentil curry",
+            price: 13.99,
+            image: "https://images.pexels.com/photos/5560763/pexels-photo-5560763.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "indian",
+            spiceLevel: "mild"
+        },
+        {
+            id: 6,
+            name: "Garlic Naan",
+            description: "Fresh baked bread with garlic and herbs",
+            price: 4.99,
+            image: "https://images.pexels.com/photos/5560050/pexels-photo-5560050.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "indian",
+            spiceLevel: "mild"
+        }
+    ],
+    "sri-lankan": [
+        {
+            id: 7,
+            name: "Kottu Roti",
+            description: "Chopped roti bread with vegetables, egg, and your choice of meat",
+            price: 15.99,
+            image: "https://images.pexels.com/photos/5560681/pexels-photo-5560681.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "sri-lankan",
+            spiceLevel: "medium",
+            featured: true
+        },
+        {
+            id: 8,
+            name: "Fish Curry",
+            description: "Traditional Sri Lankan fish curry with coconut milk and spices",
+            price: 17.99,
+            image: "https://images.pexels.com/photos/566344/pexels-photo-566344.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "sri-lankan",
+            spiceLevel: "hot"
+        },
+        {
+            id: 9,
+            name: "Hoppers",
+            description: "Bowl-shaped pancakes made from rice flour and coconut milk",
+            price: 8.99,
+            image: "https://images.pexels.com/photos/5560681/pexels-photo-5560681.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "sri-lankan",
+            spiceLevel: "mild"
+        },
+        {
+            id: 10,
+            name: "Lamprais",
+            description: "Rice and curry wrapped in banana leaf and baked",
+            price: 19.99,
+            image: "https://images.pexels.com/photos/566344/pexels-photo-566344.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "sri-lankan",
+            spiceLevel: "medium"
+        },
+        {
+            id: 11,
+            name: "Deviled Chicken",
+            description: "Spicy stir-fried chicken with bell peppers and onions",
+            price: 16.99,
+            image: "https://images.pexels.com/photos/6419733/pexels-photo-6419733.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "sri-lankan",
+            spiceLevel: "hot"
+        },
+        {
+            id: 12,
+            name: "String Hoppers",
+            description: "Steamed rice noodle pancakes served with curry",
+            price: 12.99,
+            image: "https://images.pexels.com/photos/5560681/pexels-photo-5560681.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "sri-lankan",
+            spiceLevel: "mild"
+        }
+    ],
+    desserts: [
+        {
+            id: 13,
+            name: "Kulfi",
+            description: "Traditional Indian ice cream with cardamom and pistachios",
+            price: 6.99,
+            image: "https://images.pexels.com/photos/1362534/pexels-photo-1362534.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "desserts",
+            spiceLevel: "mild",
+            featured: true
+        },
+        {
+            id: 14,
+            name: "Gulab Jamun",
+            description: "Sweet dumplings in rose-flavored sugar syrup",
+            price: 7.99,
+            image: "https://images.pexels.com/photos/1362534/pexels-photo-1362534.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "desserts",
+            spiceLevel: "mild"
+        },
+        {
+            id: 15,
+            name: "Wattalappam",
+            description: "Sri Lankan coconut custard pudding with jaggery",
+            price: 8.99,
+            image: "https://images.pexels.com/photos/1362534/pexels-photo-1362534.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "desserts",
+            spiceLevel: "mild"
+        },
+        {
+            id: 16,
+            name: "Kheer",
+            description: "Rice pudding with milk, sugar, and nuts",
+            price: 6.99,
+            image: "https://images.pexels.com/photos/1362534/pexels-photo-1362534.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "desserts",
+            spiceLevel: "mild"
+        },
+        {
+            id: 17,
+            name: "Coconut Roti",
+            description: "Sweet coconut-filled flatbread",
+            price: 5.99,
+            image: "https://images.pexels.com/photos/1362534/pexels-photo-1362534.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "desserts",
+            spiceLevel: "mild"
+        },
+        {
+            id: 18,
+            name: "Ras Malai",
+            description: "Soft cheese dumplings in sweetened milk",
+            price: 8.99,
+            image: "https://images.pexels.com/photos/1362534/pexels-photo-1362534.jpeg?auto=compress&cs=tinysrgb&w=400",
+            category: "desserts",
+            spiceLevel: "mild"
+        }
+    ]
+};
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAuth();
+    updateCartCount();
+    loadFeaturedItems();
+    loadTestimonials();
+    initializeAuthModal();
+    initializeReviewForm();
+    checkUserLogin();
+});
+
+// Authentication functions
+function initializeAuth() {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        updateAuthUI();
+    }
+}
+
+function updateAuthUI() {
+    const authNav = document.getElementById('auth-nav');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    
+    if (currentUser) {
+        authNav.innerHTML = `
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user"></i> ${currentUser.name}
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+                </ul>
+            </div>
+        `;
+        
+        if (checkoutBtn) {
+            checkoutBtn.disabled = false;
+            checkoutBtn.textContent = 'Proceed to Checkout';
+        }
+    } else {
+        authNav.innerHTML = `
+            <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+        `;
+        
+        if (checkoutBtn) {
+            checkoutBtn.disabled = true;
+            checkoutBtn.textContent = 'Login Required';
+        }
+    }
+}
+
+function initializeAuthModal() {
+    const authForm = document.getElementById('auth-form');
+    const switchMode = document.getElementById('switch-mode');
+    let isLoginMode = true;
+
+    if (authForm) {
+        authForm.addEventListener('submit', handleAuth);
+    }
+
+    if (switchMode) {
+        switchMode.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleAuthMode();
+        });
+    }
+
+    function toggleAuthMode() {
+        isLoginMode = !isLoginMode;
+        const modalTitle = document.getElementById('modalTitle');
+        const authSubmit = document.getElementById('auth-submit');
+        const switchText = document.getElementById('switch-text');
+        const nameField = document.getElementById('name-field');
+
+        if (isLoginMode) {
+            modalTitle.textContent = 'Login';
+            authSubmit.textContent = 'Login';
+            switchText.textContent = "Don't have an account?";
+            switchMode.textContent = 'Register here';
+            nameField.style.display = 'none';
+        } else {
+            modalTitle.textContent = 'Register';
+            authSubmit.textContent = 'Register';
+            switchText.textContent = 'Already have an account?';
+            switchMode.textContent = 'Login here';
+            nameField.style.display = 'block';
+        }
+    }
+
+    function handleAuth(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const name = document.getElementById('name').value;
+
+        if (isLoginMode) {
+            login(email, password);
+        } else {
+            register(email, password, name);
+        }
+    }
+}
+
+function login(email, password) {
+    // Simple authentication simulation
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const user = users.find(u => u.email === email && u.password === password);
+
+    if (user) {
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateAuthUI();
+        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+        showNotification('Login successful!', 'success');
+        
+        // Refresh page-specific content
+        if (window.location.pathname.includes('reservations.html')) {
+            checkUserLogin();
+        }
+    } else {
+        showNotification('Invalid email or password', 'error');
+    }
+}
+
+function register(email, password, name) {
+    if (!email || !password || !name) {
+        showNotification('Please fill in all fields', 'error');
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    
+    if (users.find(u => u.email === email)) {
+        showNotification('Email already exists', 'error');
+        return;
+    }
+
+    const newUser = { id: Date.now(), email, password, name };
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+
+    currentUser = newUser;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    updateAuthUI();
+    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+    showNotification('Registration successful!', 'success');
+    
+    // Refresh page-specific content
+    if (window.location.pathname.includes('reservations.html')) {
+        checkUserLogin();
+    }
+}
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    updateAuthUI();
+    showNotification('Logged out successfully', 'success');
+    
+    // Refresh page-specific content
+    if (window.location.pathname.includes('reservations.html')) {
+        checkUserLogin();
+    }
+}
+
+// Cart functions
+function updateCartCount() {
+    const cartCount = document.getElementById('cart-count');
+    if (cartCount) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = totalItems;
+    }
+}
+
+function addToCart(itemId, itemName, itemPrice, itemImage) {
+    if (!currentUser) {
+        showNotification('Please login to add items to cart', 'error');
+        return;
+    }
+
+    const existingItem = cart.find(item => item.id === itemId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            id: itemId,
+            name: itemName,
+            price: itemPrice,
+            image: itemImage,
+            quantity: 1
+        });
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+    showNotification('Item added to cart!', 'success');
+}
+
+// Featured items and testimonials
+function loadFeaturedItems() {
+    const featuredContainer = document.getElementById('featured-items');
+    if (!featuredContainer) return;
+
+    const allItems = [...menuData.indian, ...menuData['sri-lankan'], ...menuData.desserts];
+    const featuredItems = allItems.filter(item => item.featured);
+
+    featuredContainer.innerHTML = featuredItems.map(item => `
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card menu-item">
+                <img src="${item.image}" class="card-img-top" alt="${item.name}">
+                <div class="card-body">
+                    <h5 class="card-title">${item.name}</h5>
+                    <p class="card-text">${item.description}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="price">$${item.price}</span>
+                        <span class="spice-level spice-${item.spiceLevel}">${item.spiceLevel}</span>
+                    </div>
+                    <button class="btn btn-primary w-100 mt-3" onclick="addToCart(${item.id}, '${item.name}', ${item.price}, '${item.image}')">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadTestimonials() {
+    const testimonialsContainer = document.getElementById('testimonials-container');
+    if (!testimonialsContainer) return;
+
+    testimonialsContainer.innerHTML = reviews.slice(0, 3).map(review => `
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="testimonial-card">
+                <div class="testimonial-rating">
+                    ${'⭐'.repeat(review.rating)}
+                </div>
+                <p class="testimonial-text">"${review.text}"</p>
+                <div class="testimonial-author">- ${review.name}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Review form
+function initializeReviewForm() {
+    const reviewForm = document.getElementById('review-form');
+    if (!reviewForm) return;
+
+    reviewForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('reviewer-name').value;
+        const rating = parseInt(document.getElementById('rating').value);
+        const text = document.getElementById('review-text').value;
+
+        const newReview = {
+            name,
+            rating,
+            text,
+            date: new Date().toISOString().split('T')[0]
+        };
+
+        reviews.unshift(newReview);
+        localStorage.setItem('reviews', JSON.stringify(reviews));
+        
+        loadTestimonials();
+        reviewForm.reset();
+        showNotification('Thank you for your review!', 'success');
+    });
+}
+
+// Utility functions
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} position-fixed`;
+    notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Get all menu items
+function getAllMenuItems() {
+    return [...menuData.indian, ...menuData['sri-lankan'], ...menuData.desserts];
+}
+
+// Find menu item by ID
+function findMenuItemById(id) {
+    const allItems = getAllMenuItems();
+    return allItems.find(item => item.id === parseInt(id));
+}
+
+// Check user login for page-specific functionality
+function checkUserLogin() {
+    // This function can be overridden by individual pages
+}
